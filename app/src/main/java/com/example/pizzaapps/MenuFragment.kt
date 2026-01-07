@@ -5,8 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pizzaapps.client.RetrofitClient
+import com.example.pizzaapps.response.food.FoodResponse
+import okhttp3.Callback
+import retrofit2.Call
+import retrofit2.Response
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,6 +28,9 @@ class MenuFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    private val listMenu = ArrayList<FoodResponse>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,19 +48,30 @@ class MenuFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_menu, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //add data rv
-        val rvMenu = view.findViewById<RecyclerView>(R.id.recycleVieMenu)
-        rvMenu.layoutManager = GridLayoutManager(activity, 2)
-        //add data
-        val menu = ArrayList<MenuModel>()
-        menu.add(MenuModel(R.drawable.logo_pizza, "Pizza 1", "200000"))
-        menu.add(MenuModel(R.drawable.logo_pizza, "Pizza 2", "300000"))
-        //set adapter
-        val adapter = AdapterMenu(menu)
-        rvMenu.adapter = adapter
-    }
+    override fun onViewCreated (view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated (view, savedInstanceState)
+        val txtSearch: EditText = view.findViewById(R.id.editTextCari)
+//add data to RecyclerView
+        val RVMenu: RecyclerView = view.findViewById(R.id.recycleViewMenu)
+        RVMenu.layoutManager = GridLayoutManager (activity, 2)
+//get response from REST API (web service)
+        RetrofitClient.instance.getFood().enqueue (
+            object: retrofit2.Callback<ArrayList<FoodResponse>> {
+                override fun onResponse(
+                    call: Call<ArrayList<FoodResponse>>,
+                    response: Response<ArrayList<FoodResponse>>
+                ) {
+                    listMenu.clear()
+                    response.body()?.let { listMenu.addAll(it) }
+                    val adapter = AdapterMenu(listMenu)
+                    RVMenu.adapter = adapter
+                }
+                override fun onFailure (Call: retrofit2.Call<ArrayList<FoodResponse>>, t: Throwable) {
+                    TODO ( "Not yet implemented")
+                }
+            }
+        )
+        }
     companion object {
         /**
          * Use this factory method to create a new instance of

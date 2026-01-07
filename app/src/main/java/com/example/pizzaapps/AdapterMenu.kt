@@ -6,21 +6,33 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pizzaapps.response.food.FoodResponse
+import com.squareup.picasso.Picasso
 
-class AdapterMenu(private val listMenu: List<MenuModel>): RecyclerView.Adapter<AdapterMenu.ViewHolder>() {
+class AdapterMenu(private val listMenu: ArrayList<FoodResponse>):
+    RecyclerView.Adapter<AdapterMenu.ViewHolder>() {
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         //inner class
-        val imgGambar: ImageView
-        val txtNama: TextView
-        val txtharga: TextView
+        val imgGambar = view.findViewById<ImageView>(R.id.imageViewMenu)
+        val txtNama = view.findViewById<TextView>(R.id.textViewNamaMenu)
+        val txtharga = view.findViewById<TextView>(R.id.textViewHargaMenu)
+
         val context = view.context
-        init {
-            imgGambar = view.findViewById(R.id.imageViewMenu)
-            txtNama = view.findViewById(R.id.textViewNamaMenu)
-            txtharga = view.findViewById(R.id.textViewHargaMenu)
+
+
+            fun bind(response: FoodResponse){
+                val name = "${response.food_name}"
+                val price = "${response.price}"
+                val picture = "${response.food_picture}"
+
+                txtNama.text = name
+                txtharga.text = price
+                var url = "http://10.24.2.37/rest_api3384/gambar/" + picture
+                Picasso.get().load(url).into(imgGambar)
+            }
         }
 
-    }
+
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -33,10 +45,7 @@ class AdapterMenu(private val listMenu: List<MenuModel>): RecyclerView.Adapter<A
     }
 
     override fun onBindViewHolder(holder: AdapterMenu.ViewHolder, position: Int) {
-        val model = listMenu[position]
-        holder.imgGambar.setImageResource(model.gambar)
-        holder.txtNama.text = model.nama
-        holder.txtharga.text = model.harga
+        holder.bind(listMenu[position])
     }
 
     override fun getItemCount(): Int {
@@ -44,3 +53,5 @@ class AdapterMenu(private val listMenu: List<MenuModel>): RecyclerView.Adapter<A
     }
 
 }
+
+private fun AdapterMenu.ViewHolder.bind(response: FoodResponse) {}
